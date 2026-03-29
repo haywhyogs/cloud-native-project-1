@@ -8,9 +8,18 @@ env/
 
 # Environment variables (IMPORTANT)
 .env
+*.tfvars
 
 # OS files
 .DS_Store
 
 # Docker (optional but good habit)
 *.log
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+crash.log
+
+terraform/.terraform/
+python/.venv/
