@@ -43,14 +43,20 @@ Local Machine → Docker Image → Azure Container Registry → Azure App Servic
 ### Deployment Steps
 * Build Docker Image Locally
 
-```docker build -t ayodeji-app .```
+```
+docker build -t ayodeji-app .
+```
 
 * Login
 
-```az login```
+```
+az login
+```
 * Create Resource Group
 
-```az group create --name <resource-group> --location canadacentral```
+```
+az group create --name <resource-group> --location canadacentral
+```
 * Create Azure Container Registry (ACR)
 ```
 az acr create \
@@ -60,7 +66,9 @@ az acr create \
   ```
 * Tag Image for Azure Container Registry (ACR)
 
-```docker tag ayodeji-app <acr-name>.azurecr.io/ayodeji-app:v1```
+```
+docker tag ayodeji-app <acr-name>.azurecr.io/ayodeji-app:v1
+```
 
 * Login to ACR (WSL-safe method)
 ```
