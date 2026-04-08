@@ -37,8 +37,8 @@ After successfully containerizing and running the Flask application locally usin
 
 #### Application Features
 The monitoring service exposes the following endpoints:
-* /health – basic health check
-* /uptime – application uptime in seconds
+* /health – basic health check.
+* /uptime – application uptime in seconds.
 * /metrics – system‑level metrics (CPU, memory, disk)
 
 All responses are returned in JSON format.
@@ -58,8 +58,8 @@ Local Machine → Docker Image → Azure Container Registry → Azure App Servic
 
 ### System Monitoring Service and Observability (Phase 3)
 Deployed the updated service using the same Docker → Azure workflow and evolved the application by adding:
-* /status – aggregated runtime status
-* /check – external connectivity check
+* /status – aggregated runtime and dependency status.
+* /check – external dependency connectivity checks across multiple services.
 * Integrated system-level metrics collection using psutil.
 
 Access:
@@ -76,7 +76,7 @@ https://monitoring-webapp.azurewebsites.net/status
 
 Each version was built, tagged, and deployed using Docker and Azure Container Registry.
 
-### Challenges Faced
+### Key Operational Learnings
 
 * Versioned images enable safe deployments and rollbacks.
 * Container images must be explicitly authorized for pull access when using private registries.

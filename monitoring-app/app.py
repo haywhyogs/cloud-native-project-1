@@ -6,9 +6,17 @@ import os
 import requests
 
 APP_NAME = "monitoring-app"
-APP_VERSION = "v2"
+APP_VERSION = "v3"
+
+SERVICES = {
+    "self": "https://monitoring-webapp.azurewebsites.net/health",
+    "google": "https://www.google.com",
+    "github": "https://api.github.com"
+}
 
 app = Flask(__name__)
+
+logging.info(f"Starting {APP_NAME} version {APP_VERSION}")
 
 start_time = time.time()
 
@@ -19,6 +27,13 @@ logging.basicConfig(
     format='[%(asctime)s] %(levelname)s - %(message)s'
 )
 
+
+@app.route("/version")
+def version():
+        return jsonify({
+            "app": APP_NAME,
+            "version": APP_VERSION
+        }), 200
 
 
 @app.route('/health')
@@ -60,22 +75,25 @@ def metrics():
 
 @app.route("/check")
 def check():
-    try:
-        logging.info("/check - Checking external service")
+    results = {}
 
-        response = requests.get("https://monitoring-webapp.azurewebsites.net/health")
+    for name, url in SERVICES.items():
+        try:
+            response = requests.get(url, timeout=2)
 
-        return jsonify({
-            "service_status": "reachable",
-            "status_code": response.status_code
-        }), 200
+            results[name] = {
+                "status": "reachable",
+                "status_code": response.status_code
+            }
 
-    except Exception:
-        logging.exception("/check - ERROR")
+        except Exception:
+            logging.exception(f"/check - {name} FAILED")
 
-        return jsonify({
-            "service_status": "unreachable"
-        }), 500
+            results[name] = {
+                "status": "unreachable"
+            }
+
+    return jsonify(results), 200
 
 @app.route("/status")
 def status():
@@ -89,18 +107,23 @@ def status():
         uptime_seconds = time.time() - start_time
 
         # External check
-        try:
-            response = requests.get("https://monitoring-webapp.azurewebsites.net/health")
-            service_status = "reachable"
-            status_code = response.status_code
-        except:
-            service_status = "unreachable"
-            status_code = None
+        services_status = {}
+
+        for name, url in SERVICES.items():
+            try:
+                response = requests.get(url, timeout=2)
+                services_status[name] = {
+                    "status": "reachable",
+                    "status_code": response.status_code
+                }
+            except:
+                services_status[name] = {
+                    "status": "unreachable"
+                }
 
         return jsonify({
             "app_status": "running",
-            "service_status": service_status,
-            "status_code": status_code,
+            "services": services_status,
             "cpu_percent": cpu,
             "memory_percent": memory,
             "disk_percent": disk,
