@@ -30,7 +30,7 @@ This project demonstrates how to package a simple Python web application into a 
 * Push image to Azure Container Registry
 * Deploy container to Azure App Service
 
-### Cloud Deployment with Azure (Phase 2)
+### Cloud Deployment with Azure - Phase 2
 ### Overview
 
 After successfully containerizing and running the Flask application locally using Docker, the next step was to deploy the application to the cloud using Azure.
@@ -56,7 +56,7 @@ https://monitoring-webapp.azurewebsites.net/health
 Local Machine → Docker Image → Azure Container Registry → Azure App Service → Public Web URL
 
 
-### System Monitoring Service and Observability (Phase 3)
+### System Monitoring Service and Observability - Phase 3
 Deployed the updated service using the same Docker → Azure workflow and evolved the application by adding:
 * /status – aggregated runtime and dependency status.
 * /check – external dependency connectivity checks across multiple services.
@@ -67,14 +67,19 @@ Access:
 https://monitoring-webapp.azurewebsites.net/check
 https://monitoring-webapp.azurewebsites.net/status
 ```
+
+### VM Deployment and Infrastructure Responsibility - Phase 4
+ 
+Deployed the same containerized monitoring application on a Linux virtual machine to explore Infrastructure‑as‑a‑Service (IaaS) trade‑offs.
+ 
 ### Version Evolution
 
 - v1: Basic Flask application.
-- v2: Dockerized application.
-- v3: Deployed to Azure App Service.
-- v4: Monitoring service with system metrics endpoints.
+- v2: Application containerized using Docker for consistent local and cloud execution.
+- v3: Containerized application deployed to Azure App Service with managed runtime and lifecycle behavior.
+- v4: Application expanded into a monitoring service with health, status, metrics, and dependency checks.
 
-Each version was built, tagged, and deployed using Docker and Azure Container Registry.
+Each version was built as a versioned container image and stored in Azure Container Registry, enabling controlled deployments and rollbacks across environments.
 
 ### Key Operational Learnings
 
@@ -82,11 +87,16 @@ Each version was built, tagged, and deployed using Docker and Azure Container Re
 * Container images must be explicitly authorized for pull access when using private registries.
 * System metrics in cloud containers reflect the broader runtime environment, not just application logic.
 * Many cloud deployment issues only surface through hands‑on troubleshooting.
+* Managed platforms such as Azure App Service actively supervise application lifecycles, automatically handling restarts, health monitoring, and host-level failures.
+*  Virtual machines provide greater flexibility and control but require explicit management of operating system updates, networking, process recovery, and runtime behavior.
+
+These learnings emphasize the trade-offs between convenience and control when choosing between Infrastructure-as-a-Service and Platform-as-a-Service models.
 
 ### Final Outcome
 * Application successfully containerized using Docker.
-* Image stored in Azure Container Registry.
-* Application deployed to Azure App Service.
+* Image stored and versioned in Azure Container Registry..
+* Application deployed and operated on Azure App Service with managed lifecycle behavior.
+* The same containerized application deployed on a Linux virtual machine to compare infrastructure-level responsibilities.
 * Public URL accessible via browser.
 ### Screenshots
 
