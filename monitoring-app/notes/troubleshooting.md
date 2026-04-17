@@ -18,3 +18,4 @@ Conflict between WSL and Docker Desktop credential helper
 
 Removed credential helper from Docker config
 Used --password-stdin for login
+

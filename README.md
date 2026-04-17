@@ -88,7 +88,8 @@ Each version was built as a versioned container image and stored in Azure Contai
 * System metrics in cloud containers reflect the broader runtime environment, not just application logic.
 * Many cloud deployment issues only surface through hands‑on troubleshooting.
 * Managed platforms such as Azure App Service actively supervise application lifecycles, automatically handling restarts, health monitoring, and host-level failures.
-*  Virtual machines provide greater flexibility and control but require explicit management of operating system updates, networking, process recovery, and runtime behavior.
+* Virtual machines provide greater flexibility and control but require explicit management of operating system updates, networking, process recovery, and runtime behavior.
+* Restart policies are essential for predictable recovery in Infrastructure-as-a-Service environments.
 
 These learnings emphasize the trade-offs between convenience and control when choosing between Infrastructure-as-a-Service and Platform-as-a-Service models.
 
@@ -97,6 +98,8 @@ These learnings emphasize the trade-offs between convenience and control when ch
 * Image stored and versioned in Azure Container Registry..
 * Application deployed and operated on Azure App Service with managed lifecycle behavior.
 * The same containerized application deployed on a Linux virtual machine to compare infrastructure-level responsibilities.
+* Multiple containers successfully managed on a single virtual machine using Docker Compose.
+* System state proven to be reproducible and resilient across VM restarts.
 * Public URL accessible via browser.
 ### Screenshots
 

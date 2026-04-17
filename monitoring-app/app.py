@@ -6,12 +6,12 @@ import os
 import requests
 
 APP_NAME = "monitoring-app"
-APP_VERSION = "v3"
+APP_VERSION = "v4"
 
 SERVICES = {
-    "self": "https://monitoring-webapp.azurewebsites.net/health",
-    "google": "https://www.google.com",
-    "github": "https://api.github.com"
+    "container 1": "http://52.156.1.70:5000/health",
+    "container 2": "http://52.156.1.70:5001/health",
+    "container 3": "http://52.156.1.70:5002/health"
 }
 
 app = Flask(__name__)
