@@ -29,3 +29,10 @@ notes.docx
 VM Deployment.docx
 AZURE AS Deployment.docx
 docker-compose.yml
+
+#TERRAFORM
+TERRAFORM DEPLOYMENT.txt
+terraform.tfstate
+.terraform.lock.hcl
+test.txt
+../test.py
