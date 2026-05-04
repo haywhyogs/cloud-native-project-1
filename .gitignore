@@ -1,3 +1,5 @@
+# git rm --cached terraform.tfstate .terraform.lock.hcl This removes files being tracked by git.
+
 # Python cache
 __pycache__/
 *.pyc
