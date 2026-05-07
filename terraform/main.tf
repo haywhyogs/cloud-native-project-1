@@ -77,7 +77,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
   resource_group_name = var.resource_group_name
   location            = var.location
   size                = var.vm_size         
-  admin_username      = var.admin_username              
+  admin_username      = var.admin_username      
+
+  custom_data = base64encode(file("${path.module}/cloud-init.yml"))     
 
   network_interface_ids = [
     azurerm_network_interface.nic.id

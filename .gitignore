@@ -38,3 +38,4 @@ terraform.tfstate
 .terraform.lock.hcl
 test.txt
 ../test.py
+cloud-project-notes.md
