@@ -62,7 +62,7 @@ Deployed the updated service using the same Docker → Azure workflow and evolve
 * /check – external dependency connectivity checks across multiple services.
 * Integrated system-level metrics collection using psutil.
 
-Access:
+Access: (decommissioned after testing to manage cloud costs)
 ``` 
 https://monitoring-webapp.azurewebsites.net/check
 https://monitoring-webapp.azurewebsites.net/status
@@ -71,7 +71,16 @@ https://monitoring-webapp.azurewebsites.net/status
 ### VM Deployment and Infrastructure Responsibility - Phase 4
  
 Deployed the same containerized monitoring application on a Linux virtual machine to explore Infrastructure‑as‑a‑Service (IaaS) trade‑offs.
- 
+
+### Infrastructure Automation (Terraform)– Phase 5
+ In this Phase, I transitioned from manual infrasturcture setup to a fully declarative and automated approcach using terraform.
+
+#### Implementations:
+
+- Provisioned full Azure infrastructure using Terraform (VM, networking, NSG, SSH)
+- Refactored Terraform with variables for a production-ready setup
+- Configured remote state using Azure Blob Storage
+- Automated VM configuration using cloud-init — Docker installs and containers start on first boot with zero manual intervention
 ### Version Evolution
 
 - v1: Basic Flask application.
@@ -90,6 +99,10 @@ Each version was built as a versioned container image and stored in Azure Contai
 * Managed platforms such as Azure App Service actively supervise application lifecycles, automatically handling restarts, health monitoring, and host-level failures.
 * Virtual machines provide greater flexibility and control but require explicit management of operating system updates, networking, process recovery, and runtime behavior.
 * Restart policies are essential for predictable recovery in Infrastructure-as-a-Service environments.
+* base64encode(file()) vs filebase64() behaves differently on Windows environments.
+* write_files in cloud-init runs before system users exist — ownership must be set in runcmd.
+* Remote state prevents drift when infrastructure is managed from multiple locations.
+* Backend(state storage) must be bootstrapped before use.
 
 These learnings emphasize the trade-offs between convenience and control when choosing between Infrastructure-as-a-Service and Platform-as-a-Service models.
 
@@ -101,6 +114,7 @@ These learnings emphasize the trade-offs between convenience and control when ch
 * Multiple containers successfully managed on a single virtual machine using Docker Compose.
 * System state proven to be reproducible and resilient across VM restarts.
 * Public URL accessible via browser.
+* The infrastructure is now fully reproducible. A fresh deployment automatically provisions networking, security, compute, docker and running containers without manual intervention.
 ### Screenshots
 
 #### Monitoring Endpoint (Live)

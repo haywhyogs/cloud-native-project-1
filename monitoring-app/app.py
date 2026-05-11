@@ -6,12 +6,11 @@ import os
 import requests
 
 APP_NAME = "monitoring-app"
-APP_VERSION = "v4"
+APP_VERSION = "v5"
 
 SERVICES = {
-    "container 1": "http://52.156.1.70:5000/health",
-    "container 2": "http://52.156.1.70:5001/health",
-    "container 3": "http://52.156.1.70:5002/health"
+    "container 2": "http://localhost:5000/health",
+    "container 3": "http://localhost:5001/health"
 }
 
 app = Flask(__name__)

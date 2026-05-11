@@ -22,12 +22,9 @@ write_files:
     content: |
       services:
         web:
-          image: nginx:latest
+          image: monitoringacr3678.azurecr.io/monitoring-app:v4
           ports:
             - "5000:80"
-          restart: always
-        monitor:
-          image: containrrr/watchtower
           restart: always
 
 runcmd:
@@ -49,6 +46,10 @@ runcmd:
   # Install Docker Compose (stable binary - matches your working setup)
   - curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
   - chmod +x /usr/local/bin/docker-compose
-
-  # Start containers using the correct tool
-  - docker-compose -f /home/azureuser/docker-compose.yml up -d
+# Install Azure CLI
+  - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+  # Login to ACR using VM Managed Identity
+  - az login --identity
+  - az acr login --name monitoringacr3678
+  # Pull real image and restart containers
+  - docker-compose -f /home/azureuser/docker-compose.yml up -d --pull always

@@ -78,6 +78,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
   location            = var.location
   size                = var.vm_size         
   admin_username      = var.admin_username      
+  identity {
+    type = "SystemAssigned"
+  }
 
   custom_data = base64encode(file("${path.module}/cloud-init.yml"))     
 
@@ -103,4 +106,15 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
   
 }
+# Look up your existing ACR
+data "azurerm_container_registry" "acr" {
+  name                = "monitoringacr3678"
+  resource_group_name = var.resource_group_name
+}
 
+# Grant the VM's identity pull access to ACR
+resource "azurerm_role_assignment" "acr_pull" {
+  scope                = data.azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+}
