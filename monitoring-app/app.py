@@ -9,8 +9,8 @@ APP_NAME = "monitoring-app"
 APP_VERSION = "v5"
 
 SERVICES = {
-    "container 2": "http://localhost:5000/health",
-    "container 3": "http://localhost:5001/health"
+    "container 2": "http://web2:80/health",
+    "container 3": "http://web3:80/health"
 }
 
 app = Flask(__name__)
