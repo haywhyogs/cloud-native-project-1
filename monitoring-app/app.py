@@ -38,7 +38,7 @@ def version():
 @app.route('/health')
 def health():
     logging.info("/health - OK")
-    return jsonify({"status": "ok"}), 200
+    return jsonify({"status": "ok","version":"latest"}), 200
 
 
 @app.route("/uptime")
