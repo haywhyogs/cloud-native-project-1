@@ -1,4 +1,4 @@
-name: CI - Build and Push Image
+name: CI/CD - Build, Push and Deploy
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,3 +26,13 @@ jobs:
           context: ./monitoring-app
           push: true
           tags: monitoringacr3678.azurecr.io/monitoring-app:latest
+      - name: Deploy to VM
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VM_IP }}
+          username: azureuser
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            az acr login --name monitoringacr3678
+            sed -i 's|monitoring-app:.*|monitoring-app:latest|g' ~/docker-compose.yml
+            docker-compose -f ~/docker-compose.yml up -d --pull always
