@@ -5,7 +5,6 @@
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4)
 ![Docker](https://img.shields.io/badge/Container-Docker-2496ED)
 ![Azure](https://img.shields.io/badge/Cloud-Azure-0078D4)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 A containerized Python monitoring service built to simulate real-world cloud
 infrastructure — from a single local container to a fully automated,
