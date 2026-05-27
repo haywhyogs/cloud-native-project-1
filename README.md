@@ -1,127 +1,171 @@
-## Project Title -  Cloud-Native Monitoring Service on Azure
+# Cloud-Native Monitoring Service on Azure
+# Cloud-Native Monitoring Service on Azure
 
-### Overview
+![CI/CD Pipeline](https://github.com/haywhyogs/cloud-native-project-1/actions/workflows/deploy.yml/badge.svg)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4)
+![Docker](https://img.shields.io/badge/Container-Docker-2496ED)
+![Azure](https://img.shields.io/badge/Cloud-Azure-0078D4)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-This project demonstrates how to design, containerize, and deploy a cloud-native monitoring service using Docker and Azure.
+A containerized Python monitoring service built to simulate real-world cloud
+infrastructure — from a single local container to a fully automated,
+multi-container deployment on Azure with a complete CI/CD pipeline.
 
-It follows a real-world workflow:
-- Build and containerize a Python Flask application
-- Push the image to Azure Container Registry (ACR)
-- Deploy it to Azure App Service
-- Monitor system-level metrics (CPU, memory, disk)
+---
 
-The project focuses on understanding container lifecycle, cloud deployment behavior, authentication between services, and debugging real-world issues.
+## What It Does
+
+The monitoring service runs as three independent container instances, each
+exposing health, metrics, and dependency check endpoints. Each container
+actively monitors the others — if one goes down, the others report it
+immediately via the `/check` endpoint.
+
+Deployments are fully automated. Pushing code to `main` triggers a GitHub
+Actions pipeline that builds a new Docker image, pushes it to Azure Container
+Registry, and deploys it to the VM — with no manual steps.
+
+---
+
+## Live Endpoints
+
+> All three containers are currently running on the same VM on different ports.
+
+```
+http://20.220.239.61:5000/health
+http://20.220.239.61:5000/status
+http://20.220.239.61:5000/metrics
+http://20.220.239.61:5001/status
+http://20.220.239.61:5002/status
+```
+
+
+> Note: VM may be deallocated when not actively in use to manage cloud costs.
+
+---
+
+## Architecture
+
+![Architecture Diagram](images/architecture.jpg)
+
+> See [ARCHITECTURE.md](ARCHITECTURE.md) for the full breakdown including
+> network layout, identity flow, and infrastructure components.
+
+---
+
+## Tech Stack
+
+| Layer | Tool |
+|-------|------|
+| Application | Python, Flask |
+| Containerization | Docker, Docker Compose |
+| Image Registry | Azure Container Registry (ACR) |
+| Compute | Azure Virtual Machine (Ubuntu 22.04) |
+| Infrastructure as Code | Terraform |
+| VM Bootstrap | cloud-init |
+| CI/CD | GitHub Actions |
+| Authentication | OIDC Federated Identity, Azure Managed Identity |
+| State Management | Azure Blob Storage (remote Terraform state) |
+
+---
 
 ## Project Evolution
 
-### Dockerized Flask App – Phase 1
+| Phase | What was built |
+|-------|---------------|
+| 1 | Dockerized Flask app — local container, Dockerfile, port mapping |
+| 2 | Azure App Service deployment — ACR, managed runtime, public URL |
+| 3 | Monitoring endpoints — /health, /uptime, /metrics, /status, /check |
+| 4 | VM deployment — IaaS, manual container management, restart policies |
+| 5 | Infrastructure as Code — Terraform, remote state, cloud-init automation |
+| 6 | Multi-container + ACR — three instances, Docker networking, Managed Identity |
+| 7 | CI/CD pipeline — GitHub Actions, OIDC, SHA tagging, zero manual steps |
 
+---
 
-This project demonstrates how to package a simple Python web application into a Docker container and run it locally.
+## CI/CD Pipeline
 
-### What I Did
-* Built a simple Flask application.
-* Created a Dockerfile to containerize the app
-* Built a Docker image
-* Ran the container locally with port mapping
-* Verified the application via browser.
+Every push to `main` triggers the pipeline automatically:
 
-### Next Steps
-* Push image to Azure Container Registry
-* Deploy container to Azure App Service
-
-### Cloud Deployment with Azure - Phase 2
-### Overview
-
-After successfully containerizing and running the Flask application locally using Docker, the next step was to deploy the application to the cloud using Azure.
-
-#### Application Features
-The monitoring service exposes the following endpoints:
-* /health – basic health check.
-* /uptime – application uptime in seconds.
-* /metrics – system‑level metrics (CPU, memory, disk)
-
-All responses are returned in JSON format.
-
-Access:
-``` 
-https://monitoring-webapp.azurewebsites.net/uptime
-https://monitoring-webapp.azurewebsites.net/metrics
-https://monitoring-webapp.azurewebsites.net/health
+```
+git push → GitHub Actions
+  ├── Login to Azure (OIDC — no passwords stored)
+  ├── Build Docker image
+  ├── Push to ACR (tagged with commit SHA)
+  └── SSH into VM → pull new image → restart containers
 ```
 
-#### *Required troubleshooting around image pulls, port binding, and container restarts (details in troubleshooting notes)*
+No credentials are stored in the pipeline. GitHub authenticates to Azure
+using federated identity (OIDC). The VM authenticates to ACR using its
+system-assigned Managed Identity.
 
-#### Architecture
-Local Machine → Docker Image → Azure Container Registry → Azure App Service → Public Web URL
+![GitHub Actions Pipeline](images/pipeline.jpg)
 
+---
 
-### System Monitoring Service and Observability - Phase 3
-Deployed the updated service using the same Docker → Azure workflow and evolved the application by adding:
-* /status – aggregated runtime and dependency status.
-* /check – external dependency connectivity checks across multiple services.
-* Integrated system-level metrics collection using psutil.
+## Screenshots
 
-Access: (decommissioned after testing to manage cloud costs)
-``` 
-https://monitoring-webapp.azurewebsites.net/check
-https://monitoring-webapp.azurewebsites.net/status
-```
+### Monitoring Status Endpoint (live)
+![Status Endpoint](images/status.jpg)
 
-### VM Deployment and Infrastructure Responsibility - Phase 4
- 
-Deployed the same containerized monitoring application on a Linux virtual machine to explore Infrastructure‑as‑a‑Service (IaaS) trade‑offs.
+### Containers Running on VM
+![Docker PS](images/containers.jpg)
 
-### Infrastructure Automation (Terraform)– Phase 5
- In this Phase, I transitioned from manual infrasturcture setup to a fully declarative and automated approcach using terraform.
+---
+## Architecture Decisions
 
-#### Implementations:
+**Why Virtual Machine instead of Kubernetes**
+- Chosen to understand infrastructure fundamentals (networking, OS, container runtime) before introducing orchestration complexity
+- Provides full control over runtime, networking, and deployment flow
+- Keeps the system transparent and debuggable during early-stage design
 
-- Provisioned full Azure infrastructure using Terraform (VM, networking, NSG, SSH)
-- Refactored Terraform with variables for a production-ready setup
-- Configured remote state using Azure Blob Storage
-- Automated VM configuration using cloud-init — Docker installs and containers start on first boot with zero manual intervention
-### Version Evolution
+**Why Docker Compose**
+- Simple, declarative multi-container orchestration on a single host
+- Built-in networking and service discovery via container names
+- Sufficient for a 3-service architecture without introducing Kubernetes overhead
 
-- v1: Basic Flask application.
-- v2: Application containerized using Docker for consistent local and cloud execution.
-- v3: Containerized application deployed to Azure App Service with managed runtime and lifecycle behavior.
-- v4: Application expanded into a monitoring service with health, status, metrics, and dependency checks.
+**Why Managed Identity**
+- Eliminates need for stored credentials on the VM
+- Azure handles identity lifecycle and token issuance automatically
+- Enforces least privilege (AcrPull only)
 
-Each version was built as a versioned container image and stored in Azure Container Registry, enabling controlled deployments and rollbacks across environments.
+**Why OIDC (GitHub Actions)**
+- Removes static credentials from CI/CD pipeline entirely
+- Uses short-lived tokens issued per workflow run
+- Strong security boundary tied to repo + branch (federated identity)
+## Key Learnings
 
-### Key Operational Learnings
+- Infrastructure as Code makes environments fully reproducible — a single
+  `terraform apply` provisions networking, compute, and deploys containers
+- `write_files` in cloud-init runs before system users exist — file ownership
+  must be set in `runcmd`, not in the write_files block
+- `localhost` inside a container refers to that container only — container-to-
+  container communication requires Docker service names as internal DNS
+- OIDC federated identity eliminates stored credentials entirely — GitHub
+  proves its identity to Azure dynamically using short-lived tokens
+- Least privilege matters — the pipeline has AcrPush only, the VM has AcrPull
+  only, neither can touch anything else
+- `base64encode(file())` and `filebase64()` behave differently on Windows —
+  always use `base64encode(file())` in WSL environments
+- `latest` tags are unsafe — SHA tagging ensures traceability and rollback capability
+- Terraform remote state is essential for team-safe infrastructure operations
+---
+## Status
 
-* Versioned images enable safe deployments and rollbacks.
-* Container images must be explicitly authorized for pull access when using private registries.
-* System metrics in cloud containers reflect the broader runtime environment, not just application logic.
-* Many cloud deployment issues only surface through hands‑on troubleshooting.
-* Managed platforms such as Azure App Service actively supervise application lifecycles, automatically handling restarts, health monitoring, and host-level failures.
-* Virtual machines provide greater flexibility and control but require explicit management of operating system updates, networking, process recovery, and runtime behavior.
-* Restart policies are essential for predictable recovery in Infrastructure-as-a-Service environments.
-* base64encode(file()) vs filebase64() behaves differently on Windows environments.
-* write_files in cloud-init runs before system users exist — ownership must be set in runcmd.
-* Remote state prevents drift when infrastructure is managed from multiple locations.
-* Backend(state storage) must be bootstrapped before use.
+System is fully deployed and operational on Azure VM with automated CI/CD delivery.
 
-These learnings emphasize the trade-offs between convenience and control when choosing between Infrastructure-as-a-Service and Platform-as-a-Service models.
+## Documentation
 
-### Final Outcome
-* Application successfully containerized using Docker.
-* Image stored and versioned in Azure Container Registry..
-* Application deployed and operated on Azure App Service with managed lifecycle behavior.
-* The same containerized application deployed on a Linux virtual machine to compare infrastructure-level responsibilities.
-* Multiple containers successfully managed on a single virtual machine using Docker Compose.
-* System state proven to be reproducible and resilient across VM restarts.
-* Public URL accessible via browser.
-* The infrastructure is now fully reproducible. A fresh deployment automatically provisions networking, security, compute, docker and running containers without manual intervention.
-### Screenshots
+| Document | Contents |
+|----------|----------|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Full architecture, network layout, identity flow |
+| [docs/INFRASTRUCTURE.md](docs/INFRASTRUCTURE.md) |  Terraform, remote state, cloud-init, Managed Identity |
 
-#### Monitoring Endpoint (Live)
-![Metrics Endpoint](images/metrics.png)
+---
 
-#### Azure App Service Overview
-![Azure App Service](images/azure-overview.png)
+## Git Tags — Project Milestones
 
-#### Log Streaming (Debugging)
-![Logs](images/logs.png)
+| Tag | Milestone |
+|-----|-----------|
+| `v0.4.0` | Stable — real app image running from ACR with Managed Identity |
+| `v0.5.0` | Stable — three containers, /check returning all healthy |
+| `v0.6.0` | Stable — full CI/CD pipeline with OIDC and SHA tagging |
