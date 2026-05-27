@@ -95,7 +95,7 @@ git push → GitHub Actions
 ```
 
 No credentials are stored in the pipeline. GitHub authenticates to Azure
-using federated identity (OIDC). The VM authenticates to ACR using its
+using federated identity (OIDC) and the VM authenticates to ACR using its
 system-assigned Managed Identity.
 
 ![GitHub Actions Pipeline](images/pipeline.jpg)
