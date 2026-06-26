@@ -1,4 +1,4 @@
-# Cloud-Native Monitoring Service on Azure
+
 # Cloud-Native Monitoring Service on Azure
 
 ![CI/CD Pipeline](https://github.com/haywhyogs/cloud-native-project-1/actions/workflows/deploy.yml/badge.svg)
